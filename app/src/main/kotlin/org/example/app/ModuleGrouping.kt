@@ -109,7 +109,9 @@ interface ModuleGroupingStrategy {
 /**
  * Package-based grouping: Each proto package becomes a module
  */
-class PackageBasedGrouping : ModuleGroupingStrategy {
+class PackageBasedGrouping(
+    private val namingStrategy: ModuleNamingStrategy = StandardModuleNaming()
+) : ModuleGroupingStrategy {
     override val name = "package-based"
 
     override fun group(graph: ProtoDependencyGraph): ModuleGroupingResult {
@@ -118,7 +120,7 @@ class PackageBasedGrouping : ModuleGroupingStrategy {
 
         // Create modules
         val modules = protosByPackage.map { (packageName, nodes) ->
-            val moduleName = packageToModuleName(packageName)
+            val moduleName = namingStrategy.packageToModuleName(packageName)
 
             // Calculate module dependencies
             val moduleDeps = calculateModuleDependencies(nodes, protosByPackage, graph)
@@ -138,21 +140,6 @@ class PackageBasedGrouping : ModuleGroupingStrategy {
             strategy = name,
             stats = stats
         )
-    }
-
-    /**
-     * Convert package name to module name
-     * Example: com.square.customer -> square-customer
-     */
-    private fun packageToModuleName(packageName: String): String {
-        // Remove common prefixes like "com.", "org.", etc.
-        val withoutPrefix = packageName
-            .removePrefix("com.")
-            .removePrefix("org.")
-            .removePrefix("io.")
-
-        // Replace dots with hyphens
-        return withoutPrefix.replace('.', '-')
     }
 
     /**
@@ -178,7 +165,7 @@ class PackageBasedGrouping : ModuleGroupingStrategy {
 
                 // If dependency is in a different package, add module dependency
                 if (depPackage != null && depPackage != thisPackage) {
-                    val depModuleName = packageToModuleName(depPackage)
+                    val depModuleName = namingStrategy.packageToModuleName(depPackage)
                     moduleDeps.add(depModuleName)
                 }
             }
