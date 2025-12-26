@@ -219,23 +219,183 @@ Hub Protos (most depended upon):
 - `com.squareup.wire:wire-schema:5.3.5`
 - `com.squareup.okio:okio:3.9.0`
 
-### Milestone 3: Module Grouping Algorithm
+### Milestone 3: Module Grouping Algorithm ✅
 **Goal**: Develop algorithm to partition protos into logical modules
 
-- [ ] Research modularization strategies
-  - [ ] Package-based grouping
-  - [ ] Dependency-based clustering
-  - [ ] Size-based constraints
-- [ ] Implement grouping algorithm
-  - [ ] Start with package-based strategy (simplest)
-  - [ ] Add dependency-aware optimizations
-  - [ ] Handle edge cases (orphaned protos, circular deps)
-- [ ] Define module naming conventions
-- [ ] Create module metadata structure
-- [ ] Validate algorithm with example protos
-  - [ ] Ensure no circular module dependencies
-  - [ ] Verify sensible module sizes
-  - [ ] Check that all protos are assigned to modules
+**Status**: COMPLETED
+
+- [x] Research modularization strategies
+  - [x] Package-based grouping (implemented)
+  - [ ] Dependency-based clustering (deferred - package-based sufficient)
+  - [ ] Size-based constraints (deferred - package-based sufficient)
+- [x] Implement grouping algorithm
+  - [x] Start with package-based strategy (simplest)
+  - [x] Automatic dependency calculation from proto imports
+  - [x] Handle edge cases (orphaned protos, circular deps)
+- [x] Define module naming conventions
+- [x] Create module metadata structure
+- [x] Validate algorithm with example protos
+  - [x] Ensure no circular module dependencies
+  - [x] Verify sensible module sizes
+  - [x] Check that all protos are assigned to modules
+
+#### Implementation & Learnings
+
+**What We Built:**
+
+1. **ModuleGrouping.kt** - Core module grouping infrastructure
+   - `ProtoModule`: Data class representing a module
+   - `ModuleGroupingResult`: Container for grouped modules with validation
+   - `ModuleGroupingStrategy`: Interface for different grouping algorithms
+   - `ModuleGroupingStats`: Comprehensive statistics about module grouping
+
+2. **PackageBasedGrouping** - First strategy implementation
+   - Maps each proto package to a separate module (1:1 mapping)
+   - Automatic inter-module dependency calculation
+   - Module naming convention: strips prefixes and uses hyphens
+
+3. **ModuleGroupingDemo.kt** - Demonstration and validation
+   - Applies grouping strategy to example protos
+   - Validates no circular dependencies
+   - Shows module hierarchy (root/leaf modules)
+   - Performs topological sort for build order
+
+**Key Learnings:**
+
+1. **Package-Based Strategy is Sufficient**
+   - Proto packages already represent logical boundaries
+   - Developers organize protos by domain/feature in packages
+   - 1:1 mapping (package → module) is intuitive and predictable
+   - More complex strategies (clustering, size-based) add complexity without clear benefit
+   - For our 23 example protos: perfect 7-module split with good balance
+
+2. **Module Naming Convention**
+   - Input: `com.square.customer` → Output: `square-customer`
+   - Strip common prefixes: `com.`, `org.`, `io.`
+   - Replace dots with hyphens for Gradle compatibility
+   - Results in clean, readable module names
+   - Example: `com.square.payments` → `square-payments`
+
+3. **Dependency Calculation**
+   - Module dependencies derived from proto imports
+   - For each proto in module: find which packages its imports belong to
+   - If imported proto is in different package → add module dependency
+   - Automatically handles transitive dependencies
+   - Result: Accurate inter-module dependency graph
+
+4. **Circular Dependency Detection**
+   - Critical validation: Gradle cannot build circular module deps
+   - DFS algorithm with recursion stack tracking
+   - Our example protos: 0 circular dependencies ✓
+   - Proto-level circular deps already caught by wire-schema in Milestone 2
+   - Module-level adds another validation layer
+
+5. **Module Hierarchy Insights**
+   - **Root modules** (no dependencies): Foundation layer (e.g., `common`)
+   - **Leaf modules** (no dependents): Top-level features (e.g., `payments`, `bookings`)
+   - **Middle modules**: Core business logic (e.g., `customer`, `catalog`)
+   - Hierarchy naturally emerges from proto import structure
+   - Can visualize as DAG (Directed Acyclic Graph)
+
+6. **Build Order via Topological Sort**
+   - Kahn's algorithm for topological ordering
+   - Determines safe build order: dependencies built first
+   - For our modules: `common → catalog/customer → operations → commerce/bookings → payments`
+   - Essential for Gradle multi-module builds
+   - Also useful for incremental builds and parallel build optimization
+
+**Results from Example Protos:**
+
+```
+Module Grouping Statistics:
+- Strategy: package-based
+- Total modules: 7
+- Total protos: 23 (33 messages, 28 enums)
+- Module size range: 2-5 protos
+- Average protos per module: 3.3
+- Total module dependencies: 14
+- Average dependencies per module: 2.0
+- Circular dependencies: 0 ✓
+
+Generated Modules:
+1. square-common (3 protos)
+   - Package: com.square.common
+   - Dependencies: none (ROOT MODULE)
+   - Contains: money, address, error
+
+2. square-catalog (5 protos)
+   - Package: com.square.catalog
+   - Dependencies: square-common
+   - Contains: catalog, catalog_item, catalog_item_variation, category, tax
+
+3. square-customer (3 protos)
+   - Package: com.square.customer
+   - Dependencies: square-common
+   - Contains: customer, loyalty_account, loyalty_event
+
+4. square-operations (4 protos)
+   - Package: com.square.operations
+   - Dependencies: square-common, square-catalog
+   - Contains: location, team_member, inventory, inventory_change
+
+5. square-commerce (2 protos)
+   - Package: com.square.commerce
+   - Dependencies: square-common, square-customer, square-catalog, square-operations
+   - Contains: order, invoice
+
+6. square-payments (4 protos)
+   - Package: com.square.payments
+   - Dependencies: square-common, square-customer, square-commerce, square-operations
+   - Contains: payment, refund, dispute, bank_account
+   - Status: LEAF MODULE
+
+7. square-bookings (2 protos)
+   - Package: com.square.bookings
+   - Dependencies: square-customer, square-operations
+   - Contains: appointment, appointment_segment
+   - Status: LEAF MODULE
+
+Build Order (Topological Sort):
+1. square-common
+2. square-catalog
+3. square-customer
+4. square-operations
+5. square-bookings
+6. square-commerce
+7. square-payments
+```
+
+**Validation Results:**
+- ✅ All 23 protos assigned to modules
+- ✅ No circular dependencies between modules
+- ✅ Sensible module sizes (2-5 protos each)
+- ✅ Clear dependency hierarchy
+- ✅ Deterministic module creation
+- ✅ Build order successfully determined
+
+**Files Created:**
+- `app/src/main/kotlin/org/example/app/ModuleGrouping.kt`
+- `app/src/main/kotlin/org/example/app/ModuleGroupingDemo.kt`
+
+**Design Decisions:**
+
+1. **Why Package-Based?**
+   - Simplest strategy that respects existing developer organization
+   - Proto packages already represent logical domain boundaries
+   - Predictable: developers know which module their proto will be in
+   - No arbitrary decisions or heuristics needed
+
+2. **Why Not More Complex Strategies?**
+   - Dependency-based clustering: Adds complexity, unclear benefits
+   - Size-based constraints: Can split natural boundaries
+   - Package-based already produces well-balanced modules (2-5 protos)
+   - YAGNI (You Aren't Gonna Need It) principle
+
+3. **Module Metadata Structure**
+   - Immutable data classes for thread safety
+   - Separation of concerns: module data vs. grouping logic
+   - Statistics calculated on-demand
+   - Easy to extend with new strategies (interface-based design)
 
 ### Milestone 4: Gradle Build Generation
 **Goal**: Generate working Gradle multi-module projects with Wire configuration
