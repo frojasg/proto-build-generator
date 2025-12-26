@@ -17,5 +17,5 @@ dependencies {
 
 application {
     // Define the main class for the application.
-    mainClass = "org.example.app.DependencyGraphDemoKt"
+    mainClass = "org.example.app.ModuleGroupingDemoKt"
 }
