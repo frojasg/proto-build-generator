@@ -11,6 +11,7 @@ plugins {
 dependencies {
     implementation("org.apache.commons:commons-text")
     implementation(project(":utilities"))
+    implementation("com.squareup.wire:wire-schema:4.7.0")
 }
 
 application {
