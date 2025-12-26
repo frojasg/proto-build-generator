@@ -43,44 +43,181 @@ The tool will analyze:
 
 ## Milestones & Tasks
 
-### Milestone 1: Project Setup & Example Data
+### Milestone 1: Project Setup & Example Data ✅
 **Goal**: Establish project foundation and create realistic test data
 
-- [x] Initialize Kotlin CLI project structure
-- [ ] Create example proto collection with realistic complexity
-  - [ ] Multiple packages with varying dependency relationships
-  - [ ] Mix of simple and complex message definitions
-  - [ ] Cross-package dependencies
-  - [ ] At least 15-20 proto files to demonstrate modularization
-- [ ] Document example proto structure and expected module groupings
-- [ ] Set up basic CLI framework (argument parsing, help text)
+**Status**: COMPLETED
 
-### Milestone 2: Proto Analysis & Parsing (Using wire-schema)
+- [x] Initialize Kotlin CLI project structure
+- [x] Create example proto collection with realistic complexity
+  - [x] Multiple packages with varying dependency relationships
+  - [x] Mix of simple and complex message definitions
+  - [x] Cross-package dependencies
+  - [x] 23 proto files across 7 packages to demonstrate modularization
+- [x] Document example proto structure and expected module groupings
+- [x] Validate protos compile with Wire (square-protos module)
+- [ ] Set up basic CLI framework (argument parsing, help text) - Deferred to later milestone
+
+#### Implementation & Learnings
+
+**What We Built:**
+- Created 23 proto files across 7 packages modeling a Square-inspired e-commerce API
+- Packages: `common`, `customer`, `catalog`, `operations`, `commerce`, `payments`, `bookings`
+- 33 messages, 28 enums with realistic complexity
+- Created `square-protos` Gradle module with Wire 5.3.5 to validate all protos compile
+
+**Key Learnings:**
+
+1. **Wire Gradle Plugin Compatibility**
+   - Wire 5.3.5+ required for Gradle 9.2.1 compatibility
+   - Earlier versions (4.x, 5.0-5.2) had internal Gradle API issues
+   - Plugin repository configuration needed in `pluginManagement` block
+
+2. **Proto3 Enum Scoping with Wire**
+   - Wire requires enum values to be unique per **package**, not per enum
+   - This is more strict than standard proto3 which scopes enums to the file
+   - Solution: Prefix all enum values with their enum name (e.g., `ORDER_STATE_DRAFT`)
+   - Example conflict: `InvoiceStatus.DRAFT` vs `OrderState.DRAFT` in same package
+
+3. **Import Validation**
+   - Wire strictly validates all import statements
+   - Missing imports cause build failures (e.g., `payment.proto` needed `common/address.proto`)
+   - Better to catch these early rather than during modularization
+
+4. **Realistic Test Data**
+   - Modeled after actual Square API (Orders, Payments, Customers, Catalog)
+   - Created deliberate cross-package dependencies to test modularization
+   - Hub protos: `common/money.proto` imported by 6+ files
+   - Dependency chains: `customer.proto → loyalty_account.proto → loyalty_event.proto`
+
+**Files Created:**
+- `protos/` - 23 proto files organized by package
+- `protos/EXAMPLE_STRUCTURE.md` - Documentation of structure and expected modules
+- `square-protos/` - Gradle module proving protos compile as a monolith (baseline)
+
+**Build Results:**
+- ✅ All 23 protos compiled successfully
+- ✅ Generated 61 Kotlin files from Wire
+- ✅ Zero circular dependencies
+- ✅ Clean dependency graph validated
+
+### Milestone 2: Proto Analysis & Parsing (Using wire-schema) ✅
 **Goal**: Leverage wire-schema library to extract metadata from proto files and understand structure and dependencies
 
-- [ ] Explore wire-schema capabilities
-  - [ ] Study wire-schema API and documentation
-  - [ ] Understand how to load and parse proto files
-  - [ ] Identify what metadata is available (packages, messages, services, imports, etc.)
-  - [ ] Test with example protos to validate understanding
-- [ ] Integrate wire-schema into project
-  - [ ] Add wire-schema dependency to build.gradle.kts
-  - [ ] Create wrapper/facade for wire-schema functionality
-  - [ ] Extract package names from parsed schema
-  - [ ] Extract message/service definitions
-  - [ ] Extract import/dependency information
-- [ ] Build dependency graph using wire-schema data
-  - [ ] Map proto-to-proto dependencies via imports
-  - [ ] Detect circular dependencies
-  - [ ] Identify root/leaf protos
-- [ ] Support JAR file input
+**Status**: COMPLETED
+
+- [x] Explore wire-schema capabilities
+  - [x] Study wire-schema API and documentation
+  - [x] Understand how to load and parse proto files
+  - [x] Identify what metadata is available (packages, messages, services, imports, etc.)
+  - [x] Test with example protos to validate understanding
+- [x] Integrate wire-schema into project
+  - [x] Add wire-schema dependency to build.gradle.kts
+  - [x] Create wrapper/facade for wire-schema functionality (`ProtoDependencyGraph`)
+  - [x] Extract package names from parsed schema
+  - [x] Extract message/service definitions
+  - [x] Extract import/dependency information
+- [x] Build dependency graph using wire-schema data
+  - [x] Map proto-to-proto dependencies via imports
+  - [x] Detect circular dependencies
+  - [x] Identify root/leaf protos
+- [x] Support directory input
+  - [x] Recursively scan for `.proto` files
+  - [x] Load proto files into wire-schema via SchemaLoader
+  - [x] Maintain relative paths
+- [ ] Support JAR file input - Deferred to later milestone
   - [ ] Extract protos from JAR
   - [ ] Feed extracted protos to wire-schema
   - [ ] Preserve directory structure
-- [ ] Support directory input
-  - [ ] Recursively scan for `.proto` files
-  - [ ] Load proto files into wire-schema
-  - [ ] Maintain relative paths
+
+#### Implementation & Learnings
+
+**What We Built:**
+
+1. **WireSchemaExploration.kt** - Initial exploration script
+   - Loads protos using `SchemaLoader.initRoots()`
+   - Extracts all metadata: packages, types, imports
+   - Analyzes cross-package dependencies
+   - Detailed type inspection (messages, enums, fields)
+
+2. **ProtoDependencyGraph.kt** - Core dependency analysis engine
+   - `ProtoNode`: Represents a proto file with metadata
+   - Dependency tracking: forward (imports) and reverse (dependents)
+   - Graph algorithms: transitive closure, root/leaf detection, cycle detection
+   - Package-level analysis and cross-package dependency mapping
+
+3. **DependencyGraphDemo.kt** - Comprehensive demonstration
+   - Statistics: 23 protos, 33 messages, 28 enums, 0 cycles
+   - Root protos: 6 foundation files with no dependencies
+   - Leaf protos: 11 top-layer files with no dependents
+   - Package grouping and dependency visualization
+
+**Key Learnings:**
+
+1. **wire-schema API Structure**
+   - `SchemaLoader`: Entry point for loading protos
+   - `Schema`: Container for all loaded proto files with resolved type references
+   - `ProtoFile`: Individual proto file with `packageName`, `imports`, `types`, `location`
+   - Type hierarchy: `MessageType` (fields), `EnumType` (constants), `EnclosingType` (nested)
+   - Schema is "linked" - all type references are resolved across files
+
+2. **Dependency Resolution**
+   - Imports are stored as simple strings (file paths)
+   - Need to map import strings to actual `ProtoFile` objects
+   - wire-schema automatically loads transitive dependencies
+   - Built-in protos (`google/protobuf/*`, `wire/*`) are included - need to filter
+
+3. **Graph Construction Insights**
+   - **Forward dependencies**: Easy - just read `ProtoFile.imports`
+   - **Reverse dependencies**: Must build manually by inverting forward deps
+   - **Transitive closure**: BFS/DFS traversal of forward deps
+   - **Cycle detection**: DFS with recursion stack tracking
+
+4. **Package-Level Analysis**
+   - `packageName` field can be null (handle gracefully)
+   - Most useful to group by package for modularization
+   - Cross-package dependencies are key for module boundary detection
+   - Hub packages (like `common`) are heavily depended upon
+
+5. **okio Dependency**
+   - wire-schema uses okio for file system operations
+   - Must add `com.squareup.okio:okio:3.9.0` dependency
+   - `FileSystem.SYSTEM` for accessing local file system
+
+**Analysis Results from Example Protos:**
+
+```
+Graph Statistics:
+- 23 proto files (excluding Wire built-ins)
+- 7 packages, 33 messages, 28 enums
+- 33 total dependencies, 14 cross-package
+- 6 root protos (foundation layer)
+- 11 leaf protos (top layer)
+- 0 circular dependencies ✓
+
+Package Dependencies:
+  common (3 protos) → [no dependencies]
+  customer (3 protos) → common
+  catalog (5 protos) → common
+  operations (4 protos) → common, catalog
+  commerce (2 protos) → common, customer, catalog, operations
+  payments (4 protos) → common, customer, commerce, operations
+  bookings (2 protos) → customer, operations
+
+Hub Protos (most depended upon):
+  - common/money.proto: 7 dependents
+  - operations/location.proto: 5 dependents
+  - customer/customer.proto: 5 dependents
+```
+
+**Files Created:**
+- `app/src/main/kotlin/org/example/app/WireSchemaExploration.kt`
+- `app/src/main/kotlin/org/example/app/ProtoDependencyGraph.kt`
+- `app/src/main/kotlin/org/example/app/DependencyGraphDemo.kt`
+
+**Dependencies Added:**
+- `com.squareup.wire:wire-schema:5.3.5`
+- `com.squareup.okio:okio:3.9.0`
 
 ### Milestone 3: Module Grouping Algorithm
 **Goal**: Develop algorithm to partition protos into logical modules
