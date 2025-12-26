@@ -55,23 +55,31 @@ The tool will analyze:
 - [ ] Document example proto structure and expected module groupings
 - [ ] Set up basic CLI framework (argument parsing, help text)
 
-### Milestone 2: Proto Analysis & Parsing
-**Goal**: Extract metadata from proto files to understand structure and dependencies
+### Milestone 2: Proto Analysis & Parsing (Using wire-schema)
+**Goal**: Leverage wire-schema library to extract metadata from proto files and understand structure and dependencies
 
-- [ ] Implement proto file parser
-  - [ ] Extract package names
+- [ ] Explore wire-schema capabilities
+  - [ ] Study wire-schema API and documentation
+  - [ ] Understand how to load and parse proto files
+  - [ ] Identify what metadata is available (packages, messages, services, imports, etc.)
+  - [ ] Test with example protos to validate understanding
+- [ ] Integrate wire-schema into project
+  - [ ] Add wire-schema dependency to build.gradle.kts
+  - [ ] Create wrapper/facade for wire-schema functionality
+  - [ ] Extract package names from parsed schema
   - [ ] Extract message/service definitions
-  - [ ] Extract import statements
-  - [ ] Handle proto2 and proto3 syntax
-- [ ] Build dependency graph
+  - [ ] Extract import/dependency information
+- [ ] Build dependency graph using wire-schema data
   - [ ] Map proto-to-proto dependencies via imports
   - [ ] Detect circular dependencies
   - [ ] Identify root/leaf protos
 - [ ] Support JAR file input
   - [ ] Extract protos from JAR
+  - [ ] Feed extracted protos to wire-schema
   - [ ] Preserve directory structure
 - [ ] Support directory input
   - [ ] Recursively scan for `.proto` files
+  - [ ] Load proto files into wire-schema
   - [ ] Maintain relative paths
 
 ### Milestone 3: Module Grouping Algorithm
