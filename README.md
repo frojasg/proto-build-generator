@@ -1,4 +1,4 @@
-# Wire Generator
+# Proto Build Generator
 
 A CLI tool for generating modularized, deterministic build configurations for Protocol Buffer definitions using [Wire](https://github.com/square/wire).
 
@@ -200,16 +200,16 @@ The tool will analyze:
 
 ```bash
 # Generate from directory
-wire-generator generate --input ./protos --output ./generated-project
+proto-build-generator generate --input ./protos --output ./generated-project
 
 # Generate from JAR
-wire-generator generate --input protos.jar --output ./generated-project
+proto-build-generator generate --input protos.jar --output ./generated-project
 
 # Dry-run to preview module structure
-wire-generator generate --input ./protos --dry-run
+proto-build-generator generate --input ./protos --dry-run
 
 # Use custom configuration
-wire-generator generate --input ./protos --config wire-gen.yaml
+proto-build-generator generate --input ./protos --config proto-build-gen.yaml
 ```
 
 ---
