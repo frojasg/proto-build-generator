@@ -11,10 +11,11 @@ plugins {
 dependencies {
     implementation("org.apache.commons:commons-text")
     implementation(project(":utilities"))
-    implementation("com.squareup.wire:wire-schema:4.7.0")
+    implementation("com.squareup.wire:wire-schema:5.3.5")
+    implementation("com.squareup.okio:okio:3.9.0")
 }
 
 application {
     // Define the main class for the application.
-    mainClass = "org.example.app.AppKt"
+    mainClass = "org.example.app.WireSchemaExplorationKt"
 }
