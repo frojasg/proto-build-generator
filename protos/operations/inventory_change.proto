@@ -1,0 +1,96 @@
+syntax = "proto3";
+
+package com.square.operations;
+
+import "operations/inventory.proto";
+
+// Represents a change to inventory counts
+message InventoryChange {
+  // Change type
+  InventoryChangeType type = 1;
+
+  // Physical count details, if applicable
+  InventoryPhysicalCount physical_count = 2;
+
+  // Adjustment details, if applicable
+  InventoryAdjustment adjustment = 3;
+
+  // Transfer details, if applicable
+  InventoryTransfer transfer = 4;
+}
+
+enum InventoryChangeType {
+  INVENTORY_CHANGE_TYPE_UNSPECIFIED = 0;
+  PHYSICAL_COUNT = 1;
+  ADJUSTMENT = 2;
+  TRANSFER = 3;
+}
+
+message InventoryPhysicalCount {
+  // Physical count ID
+  string id = 1;
+
+  // Reference ID
+  string reference_id = 2;
+
+  // Catalog object ID
+  string catalog_object_id = 3;
+
+  // Inventory state
+  InventoryState state = 4;
+
+  // Location ID
+  string location_id = 5;
+
+  // Quantity counted
+  string quantity = 6;
+
+  // Timestamp when count occurred, in RFC 3339 format
+  string occurred_at = 7;
+}
+
+message InventoryAdjustment {
+  // Adjustment ID
+  string id = 1;
+
+  // Catalog object ID
+  string catalog_object_id = 2;
+
+  // From state
+  InventoryState from_state = 3;
+
+  // To state
+  InventoryState to_state = 4;
+
+  // Location ID
+  string location_id = 5;
+
+  // Quantity adjusted
+  string quantity = 6;
+
+  // Timestamp when adjustment occurred, in RFC 3339 format
+  string occurred_at = 7;
+}
+
+message InventoryTransfer {
+  // Transfer ID
+  string id = 1;
+
+  // Catalog object ID
+  string catalog_object_id = 2;
+
+  // Inventory state
+  InventoryState state = 3;
+
+  // From location ID
+  string from_location_id = 4;
+
+  // To location ID
+  string to_location_id = 5;
+
+  // Quantity transferred
+  string quantity = 6;
+
+  // Timestamp when transfer occurred, in RFC 3339 format
+  string occurred_at = 7;
+}

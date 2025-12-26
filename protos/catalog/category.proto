@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package com.square.catalog;
+
+// Represents a category for organizing catalog items
+message Category {
+  // Unique identifier for the category
+  string id = 1;
+
+  // Category name
+  string name = 2;
+
+  // Category image IDs
+  repeated string image_ids = 3;
+}

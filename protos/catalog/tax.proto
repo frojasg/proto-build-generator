@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package com.square.catalog;
+
+import "common/money.proto";
+
+// Represents a tax configuration
+message Tax {
+  // Unique identifier for the tax
+  string id = 1;
+
+  // Tax name (e.g., "Sales Tax", "VAT")
+  string name = 2;
+
+  // Calculation phase
+  TaxCalculationPhase calculation_phase = 3;
+
+  // Inclusion type
+  TaxInclusionType inclusion_type = 4;
+
+  // Tax percentage (e.g., "7.5" for 7.5%)
+  string percentage = 5;
+
+  // Whether this tax is enabled
+  bool enabled = 6;
+}
+
+enum TaxCalculationPhase {
+  TAX_CALCULATION_PHASE_UNSPECIFIED = 0;
+  TAX_SUBTOTAL_PHASE = 1;
+  TAX_TOTAL_PHASE = 2;
+}
+
+enum TaxInclusionType {
+  TAX_INCLUSION_TYPE_UNSPECIFIED = 0;
+  ADDITIVE = 1;
+  INCLUSIVE = 2;
+}

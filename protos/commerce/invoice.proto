@@ -1,0 +1,108 @@
+syntax = "proto3";
+
+package com.square.commerce;
+
+import "common/money.proto";
+import "customer/customer.proto";
+import "commerce/order.proto";
+
+// Represents an invoice for a customer
+message Invoice {
+  // Unique identifier for the invoice
+  string id = 1;
+
+  // Invoice version number
+  int32 version = 2;
+
+  // Location ID where the invoice was created
+  string location_id = 3;
+
+  // Order ID associated with this invoice
+  string order_id = 4;
+
+  // Customer ID
+  string customer_id = 5;
+
+  // Primary recipient email
+  string primary_recipient_email = 6;
+
+  // Payment requests
+  repeated InvoicePaymentRequest payment_requests = 7;
+
+  // Invoice delivery method
+  InvoiceDeliveryMethod delivery_method = 8;
+
+  // Invoice number
+  string invoice_number = 9;
+
+  // Invoice title
+  string title = 10;
+
+  // Invoice description
+  string description = 11;
+
+  // Timestamp when the invoice was scheduled for publication, in RFC 3339 format
+  string scheduled_at = 12;
+
+  // Invoice status
+  InvoiceStatus status = 13;
+
+  // Timezone
+  string timezone = 14;
+
+  // Timestamp when the invoice was created, in RFC 3339 format
+  string created_at = 15;
+
+  // Timestamp when the invoice was last updated, in RFC 3339 format
+  string updated_at = 16;
+}
+
+message InvoicePaymentRequest {
+  // Unique identifier for the payment request
+  string uid = 1;
+
+  // Request type
+  InvoiceRequestType request_type = 2;
+
+  // Due date, in RFC 3339 format
+  string due_date = 3;
+
+  // Fixed amount requested
+  com.square.common.Money fixed_amount_requested_money = 4;
+
+  // Percentage requested (for DEPOSIT type)
+  string percentage_requested = 5;
+
+  // Computed amount money
+  com.square.common.Money computed_amount_money = 6;
+
+  // Total completed amount money
+  com.square.common.Money total_completed_amount_money = 7;
+}
+
+enum InvoiceRequestType {
+  INVOICE_REQUEST_TYPE_UNSPECIFIED = 0;
+  BALANCE = 1;
+  DEPOSIT = 2;
+  INSTALLMENT = 3;
+}
+
+enum InvoiceDeliveryMethod {
+  INVOICE_DELIVERY_METHOD_UNSPECIFIED = 0;
+  EMAIL = 1;
+  SMS = 2;
+  SHARE_MANUALLY = 3;
+}
+
+enum InvoiceStatus {
+  INVOICE_STATUS_UNSPECIFIED = 0;
+  DRAFT = 1;
+  UNPAID = 2;
+  SCHEDULED = 3;
+  PARTIALLY_PAID = 4;
+  PAID = 5;
+  CANCELED = 6;
+  FAILED = 7;
+  PARTIALLY_REFUNDED = 8;
+  REFUNDED = 9;
+}

@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package com.square.payments;
+
+import "common/money.proto";
+import "payments/payment.proto";
+
+// Represents a disputed payment (chargeback)
+message Dispute {
+  // Unique identifier for the dispute
+  string id = 1;
+
+  // Disputed payment ID
+  string payment_id = 2;
+
+  // Dispute state
+  DisputeState state = 3;
+
+  // Amount disputed
+  com.square.common.Money amount_money = 4;
+
+  // Dispute reason
+  DisputeReason reason = 5;
+
+  // Timestamp when the dispute was created, in RFC 3339 format
+  string created_at = 6;
+
+  // Timestamp when the dispute was last updated, in RFC 3339 format
+  string updated_at = 7;
+
+  // Due date for evidence submission, in RFC 3339 format
+  string due_at = 8;
+
+  // Disputed payment details
+  DisputedPayment disputed_payment = 9;
+
+  // Evidence IDs
+  repeated string evidence_ids = 10;
+
+  // Card brand
+  string card_brand = 11;
+}
+
+message DisputedPayment {
+  // Payment ID
+  string payment_id = 1;
+}
+
+enum DisputeState {
+  DISPUTE_STATE_UNSPECIFIED = 0;
+  INQUIRY_EVIDENCE_REQUIRED = 1;
+  INQUIRY_PROCESSING = 2;
+  INQUIRY_CLOSED = 3;
+  EVIDENCE_REQUIRED = 4;
+  PROCESSING = 5;
+  WON = 6;
+  LOST = 7;
+  ACCEPTED = 8;
+}
+
+enum DisputeReason {
+  DISPUTE_REASON_UNSPECIFIED = 0;
+  AMOUNT_DIFFERS = 1;
+  CANCELLED = 2;
+  DUPLICATE = 3;
+  NO_KNOWLEDGE = 4;
+  NOT_AS_DESCRIBED = 5;
+  NOT_RECEIVED = 6;
+  PAID_BY_OTHER_MEANS = 7;
+  CUSTOMER_REQUESTS_CREDIT = 8;
+  EMV_LIABILITY_SHIFT = 9;
+}

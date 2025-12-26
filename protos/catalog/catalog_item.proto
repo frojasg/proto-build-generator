@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package com.square.catalog;
+
+import "catalog/catalog.proto";
+
+// Represents a catalog item (product)
+message CatalogItem {
+  // Unique identifier for the item
+  string id = 1;
+
+  // Item name
+  string name = 2;
+
+  // Item description
+  string description = 3;
+
+  // Abbreviation for the item
+  string abbreviation = 4;
+
+  // Category ID this item belongs to
+  string category_id = 5;
+
+  // List of variation IDs for this item
+  repeated string variation_ids = 6;
+
+  // Product type
+  ProductType product_type = 7;
+
+  // Whether the item can be taxed
+  bool skip_tax = 8;
+
+  // Image IDs associated with this item
+  repeated string image_ids = 9;
+}
+
+enum ProductType {
+  PRODUCT_TYPE_UNSPECIFIED = 0;
+  REGULAR = 1;
+  GIFT_CARD = 2;
+  APPOINTMENTS_SERVICE = 3;
+}

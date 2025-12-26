@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+package com.square.operations;
+
+import "common/address.proto";
+
+// Represents a business location
+message Location {
+  // Unique identifier for the location
+  string id = 1;
+
+  // Location name
+  string name = 2;
+
+  // Physical address
+  com.square.common.Address address = 3;
+
+  // Timezone of the location
+  string timezone = 4;
+
+  // Business hours
+  repeated BusinessHours business_hours = 5;
+
+  // Location status
+  LocationStatus status = 6;
+
+  // Timestamp when the location was created, in RFC 3339 format
+  string created_at = 7;
+
+  // Merchant ID that owns this location
+  string merchant_id = 8;
+
+  // Country of the location
+  com.square.common.Country country = 9;
+
+  // Phone number
+  string phone_number = 10;
+
+  // Business name
+  string business_name = 11;
+}
+
+message BusinessHours {
+  // Day of week
+  DayOfWeek day_of_week = 1;
+
+  // Start time in local time (HH:MM format)
+  string start_local_time = 2;
+
+  // End time in local time (HH:MM format)
+  string end_local_time = 3;
+}
+
+enum DayOfWeek {
+  DAY_OF_WEEK_UNSPECIFIED = 0;
+  MONDAY = 1;
+  TUESDAY = 2;
+  WEDNESDAY = 3;
+  THURSDAY = 4;
+  FRIDAY = 5;
+  SATURDAY = 6;
+  SUNDAY = 7;
+}
+
+enum LocationStatus {
+  LOCATION_STATUS_UNSPECIFIED = 0;
+  ACTIVE = 1;
+  INACTIVE = 2;
+}

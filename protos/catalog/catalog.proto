@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package com.square.catalog;
+
+// Represents a catalog object container
+message Catalog {
+  // Catalog object type
+  CatalogType type = 1;
+
+  // Unique identifier for the catalog object
+  string id = 2;
+
+  // Timestamp when the object was last updated, in RFC 3339 format
+  string updated_at = 3;
+
+  // Version of the catalog object
+  int64 version = 4;
+
+  // Whether the object is deleted
+  bool is_deleted = 5;
+
+  // Additional catalog-specific data stored as key-value pairs
+  map<string, string> custom_attribute_values = 6;
+}
+
+enum CatalogType {
+  CATALOG_TYPE_UNSPECIFIED = 0;
+  ITEM = 1;
+  ITEM_VARIATION = 2;
+  CATEGORY = 3;
+  TAX = 4;
+  DISCOUNT = 5;
+  MODIFIER_LIST = 6;
+  MODIFIER = 7;
+}

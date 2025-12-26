@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package com.square.common;
+
+// Represents a physical address
+message Address {
+  // First line of the address
+  string address_line_1 = 1;
+
+  // Second line of the address, if any
+  string address_line_2 = 2;
+
+  // City, district, suburb, town, or village
+  string locality = 3;
+
+  // State, county, province, or region
+  string administrative_district_level_1 = 4;
+
+  // ZIP or postal code
+  string postal_code = 5;
+
+  // Two-letter country code, in ISO 3166-1-alpha-2 format
+  Country country = 6;
+}
+
+// ISO 3166-1 alpha-2 country codes
+enum Country {
+  COUNTRY_UNSPECIFIED = 0;
+  US = 1;  // United States
+  CA = 2;  // Canada
+  GB = 3;  // United Kingdom
+  JP = 4;  // Japan
+  AU = 5;  // Australia
+  MX = 6;  // Mexico
+  DE = 7;  // Germany
+  FR = 8;  // France
+}

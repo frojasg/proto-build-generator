@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+package com.square.payments;
+
+import "operations/location.proto";
+
+// Represents a bank account for payment settlement
+message BankAccount {
+  // Unique identifier for the bank account
+  string id = 1;
+
+  // Account number suffix (last 4 digits)
+  string account_number_suffix = 2;
+
+  // Country where the account is held
+  string country = 3;
+
+  // Currency of the account
+  string currency = 4;
+
+  // Account type
+  BankAccountType account_type = 5;
+
+  // Holder name
+  string holder_name = 6;
+
+  // Primary location ID
+  string primary_bank_identification_number = 7;
+
+  // Bank account status
+  BankAccountStatus status = 8;
+
+  // Creditable status
+  bool creditable = 9;
+
+  // Debitable status
+  bool debitable = 10;
+
+  // Bank name
+  string bank_name = 11;
+
+  // Location ID
+  string location_id = 12;
+
+  // Fingerprint for deduplication
+  string fingerprint = 13;
+
+  // Version
+  int32 version = 14;
+}
+
+enum BankAccountType {
+  BANK_ACCOUNT_TYPE_UNSPECIFIED = 0;
+  CHECKING = 1;
+  SAVINGS = 2;
+  INVESTMENT = 3;
+  OTHER = 4;
+}
+
+enum BankAccountStatus {
+  BANK_ACCOUNT_STATUS_UNSPECIFIED = 0;
+  VERIFICATION_IN_PROGRESS = 1;
+  VERIFIED = 2;
+  DISABLED = 3;
+}

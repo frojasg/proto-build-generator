@@ -1,0 +1,130 @@
+syntax = "proto3";
+
+package com.square.payments;
+
+import "common/money.proto";
+import "customer/customer.proto";
+import "commerce/order.proto";
+import "operations/location.proto";
+
+// Represents a payment processed by Square
+message Payment {
+  // Unique identifier for the payment
+  string id = 1;
+
+  // Timestamp when the payment was created, in RFC 3339 format
+  string created_at = 2;
+
+  // Timestamp when the payment was last updated, in RFC 3339 format
+  string updated_at = 3;
+
+  // Amount of money processed
+  com.square.common.Money amount_money = 4;
+
+  // Amount approved by the payment card
+  com.square.common.Money approved_money = 5;
+
+  // Payment status
+  PaymentStatus status = 6;
+
+  // Delay duration (for COMPLETED_DELAYED status)
+  string delay_duration = 7;
+
+  // Source type (e.g., CARD, CASH, BANK_ACCOUNT)
+  string source_type = 8;
+
+  // Card details, if applicable
+  CardPaymentDetails card_details = 9;
+
+  // Location ID where the payment was processed
+  string location_id = 10;
+
+  // Order ID associated with this payment
+  string order_id = 11;
+
+  // Customer ID, if associated
+  string customer_id = 12;
+
+  // Reference ID for third-party integration
+  string reference_id = 13;
+
+  // Receipt number
+  string receipt_number = 14;
+
+  // Receipt URL
+  string receipt_url = 15;
+
+  // Refunded money amount
+  com.square.common.Money refunded_money = 16;
+}
+
+message CardPaymentDetails {
+  // Card payment status
+  string status = 1;
+
+  // Card details
+  Card card = 2;
+
+  // Entry method (e.g., KEYED, SWIPED, EMV, CONTACTLESS)
+  string entry_method = 3;
+
+  // CVV status
+  string cvv_status = 4;
+
+  // AVS status
+  string avs_status = 5;
+
+  // Statement description
+  string statement_description = 6;
+}
+
+message Card {
+  // Card brand (e.g., VISA, MASTERCARD, AMEX)
+  CardBrand card_brand = 1;
+
+  // Last 4 digits of card number
+  string last_4 = 2;
+
+  // Expiration month
+  int32 exp_month = 3;
+
+  // Expiration year
+  int32 exp_year = 4;
+
+  // Cardholder name
+  string cardholder_name = 5;
+
+  // Billing address
+  com.square.common.Address billing_address = 6;
+
+  // Card fingerprint for deduplication
+  string fingerprint = 7;
+
+  // Card type (CREDIT or DEBIT)
+  CardType card_type = 8;
+}
+
+enum PaymentStatus {
+  PAYMENT_STATUS_UNSPECIFIED = 0;
+  APPROVED = 1;
+  PENDING = 2;
+  COMPLETED = 3;
+  CANCELED = 4;
+  FAILED = 5;
+}
+
+enum CardBrand {
+  CARD_BRAND_UNSPECIFIED = 0;
+  VISA = 1;
+  MASTERCARD = 2;
+  AMERICAN_EXPRESS = 3;
+  DISCOVER = 4;
+  DISCOVER_DINERS = 5;
+  JCB = 6;
+}
+
+enum CardType {
+  CARD_TYPE_UNSPECIFIED = 0;
+  CREDIT = 1;
+  DEBIT = 2;
+}

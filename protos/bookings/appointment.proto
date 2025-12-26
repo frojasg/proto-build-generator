@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package com.square.bookings;
+
+import "customer/customer.proto";
+import "operations/location.proto";
+import "operations/team_member.proto";
+
+// Represents an appointment booking
+message Appointment {
+  // Unique identifier for the appointment
+  string id = 1;
+
+  // Appointment status
+  AppointmentStatus status = 2;
+
+  // Location ID where the appointment takes place
+  string location_id = 3;
+
+  // Customer ID
+  string customer_id = 4;
+
+  // Start time in RFC 3339 format
+  string start_at = 5;
+
+  // Location timezone
+  string location_timezone = 6;
+
+  // Duration in minutes
+  int32 duration_minutes = 7;
+
+  // Appointment segments
+  repeated string appointment_segment_ids = 8;
+
+  // Version for optimistic concurrency
+  int32 version = 9;
+
+  // Timestamp when the appointment was created, in RFC 3339 format
+  string created_at = 10;
+
+  // Timestamp when the appointment was last updated, in RFC 3339 format
+  string updated_at = 11;
+
+  // Customer note
+  string customer_note = 12;
+
+  // Seller note
+  string seller_note = 13;
+}
+
+enum AppointmentStatus {
+  APPOINTMENT_STATUS_UNSPECIFIED = 0;
+  PENDING = 1;
+  CANCELLED_BY_CUSTOMER = 2;
+  CANCELLED_BY_SELLER = 3;
+  ACCEPTED = 4;
+  NO_SHOW = 5;
+}
