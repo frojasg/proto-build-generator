@@ -1,0 +1,98 @@
+syntax = "proto3";
+
+package com.square.commerce;
+
+import "common/money.proto";
+import "customer/customer.proto";
+import "catalog/catalog_item.proto";
+import "operations/location.proto";
+
+// Represents a customer order
+message Order {
+  // Unique identifier for the order
+  string id = 1;
+
+  // Location ID where the order was placed
+  string location_id = 2;
+
+  // Customer ID, if associated
+  string customer_id = 3;
+
+  // Line items in the order
+  repeated OrderLineItem line_items = 4;
+
+  // Total money for the order
+  com.square.common.Money total_money = 5;
+
+  // Total tax money
+  com.square.common.Money total_tax_money = 6;
+
+  // Total discount money
+  com.square.common.Money total_discount_money = 7;
+
+  // Order state
+  OrderState state = 8;
+
+  // Timestamp when the order was created, in RFC 3339 format
+  string created_at = 9;
+
+  // Timestamp when the order was last updated, in RFC 3339 format
+  string updated_at = 10;
+
+  // Timestamp when the order was closed, in RFC 3339 format
+  string closed_at = 11;
+
+  // Order source
+  OrderSource source = 12;
+
+  // Reference ID for third-party integration
+  string reference_id = 13;
+}
+
+message OrderLineItem {
+  // Unique identifier for the line item
+  string uid = 1;
+
+  // Catalog object ID (item variation)
+  string catalog_object_id = 2;
+
+  // Quantity ordered
+  string quantity = 3;
+
+  // Item name
+  string name = 4;
+
+  // Base price money
+  com.square.common.Money base_price_money = 5;
+
+  // Total money for this line item
+  com.square.common.Money total_money = 6;
+
+  // Total tax money for this line item
+  com.square.common.Money total_tax_money = 7;
+
+  // Total discount money for this line item
+  com.square.common.Money total_discount_money = 8;
+
+  // Item variation name
+  string variation_name = 9;
+
+  // Note associated with the line item
+  string note = 10;
+}
+
+enum OrderState {
+  ORDER_STATE_UNSPECIFIED = 0;
+  ORDER_STATE_OPEN = 1;
+  ORDER_STATE_COMPLETED = 2;
+  ORDER_STATE_CANCELED = 3;
+  ORDER_STATE_DRAFT = 4;
+}
+
+enum OrderSource {
+  ORDER_SOURCE_UNSPECIFIED = 0;
+  POS = 1;              // Point of Sale
+  ONLINE_STORE = 2;     // Online store
+  API = 3;              // API
+  EXTERNAL_API = 4;     // Third-party integration
+}

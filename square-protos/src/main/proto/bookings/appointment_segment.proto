@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package com.square.bookings;
+
+import "bookings/appointment.proto";
+import "operations/team_member.proto";
+
+// Represents a segment of an appointment (a service within the appointment)
+message AppointmentSegment {
+  // Unique identifier for the segment
+  string id = 1;
+
+  // Appointment ID this segment belongs to
+  string appointment_id = 2;
+
+  // Duration in minutes
+  int32 duration_minutes = 3;
+
+  // Service variation ID from catalog
+  string service_variation_id = 4;
+
+  // Service variation version
+  int64 service_variation_version = 5;
+
+  // Team member ID providing the service
+  string team_member_id = 6;
+
+  // Start time offset from appointment start, in minutes
+  int32 start_time_offset_minutes = 7;
+
+  // Whether the segment represents a wait time
+  bool intermission = 8;
+
+  // Whether any team member can provide this service
+  bool any_team_member_allowed = 9;
+
+  // Resource IDs (e.g., rooms, equipment)
+  repeated string resource_ids = 10;
+}

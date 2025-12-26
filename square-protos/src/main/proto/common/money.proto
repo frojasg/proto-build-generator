@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package com.square.common;
+
+// Represents an amount of money with its currency type
+message Money {
+  // The amount of money, in the smallest denomination of the currency
+  // For example, 1000 cents = $10.00 USD
+  int64 amount = 1;
+
+  // The type of currency, in ISO 4217 format
+  Currency currency = 2;
+}
+
+// ISO 4217 currency codes
+enum Currency {
+  CURRENCY_UNSPECIFIED = 0;
+  USD = 1;  // United States Dollar
+  CAD = 2;  // Canadian Dollar
+  EUR = 3;  // Euro
+  GBP = 4;  // British Pound Sterling
+  JPY = 5;  // Japanese Yen
+  AUD = 6;  // Australian Dollar
+  MXN = 7;  // Mexican Peso
+}

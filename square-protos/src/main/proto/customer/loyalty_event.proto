@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package com.square.customer;
+
+import "customer/loyalty_account.proto";
+
+// Represents an event that affects a loyalty account's point balance
+message LoyaltyEvent {
+  // Unique identifier for the event
+  string id = 1;
+
+  // Loyalty account ID
+  string loyalty_account_id = 2;
+
+  // Type of loyalty event
+  LoyaltyEventType type = 3;
+
+  // Timestamp when the event was created, in RFC 3339 format
+  string created_at = 4;
+
+  // Points added or deducted
+  int32 points = 5;
+
+  // Order ID associated with the event, if applicable
+  string order_id = 6;
+}
+
+enum LoyaltyEventType {
+  LOYALTY_EVENT_TYPE_UNSPECIFIED = 0;
+  ACCUMULATE_POINTS = 1;      // Points earned from purchase
+  REDEEM_REWARD = 2;          // Points redeemed for reward
+  DELETE_REWARD = 3;          // Reward deletion
+  ADJUST_POINTS = 4;          // Manual points adjustment
+  EXPIRE_POINTS = 5;          // Points expired
+}

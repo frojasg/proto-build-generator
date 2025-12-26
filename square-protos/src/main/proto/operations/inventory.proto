@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package com.square.operations;
+
+import "catalog/catalog_item.proto";
+import "operations/location.proto";
+
+// Represents the inventory count of a catalog item at a location
+message InventoryCount {
+  // Catalog object ID
+  string catalog_object_id = 1;
+
+  // Catalog object type (should be ITEM_VARIATION)
+  string catalog_object_type = 2;
+
+  // Inventory state
+  InventoryState state = 3;
+
+  // Location ID
+  string location_id = 4;
+
+  // Quantity available
+  string quantity = 5;
+
+  // Timestamp when count was calculated, in RFC 3339 format
+  string calculated_at = 6;
+}
+
+enum InventoryState {
+  INVENTORY_STATE_UNSPECIFIED = 0;
+  IN_STOCK = 1;
+  SOLD = 2;
+  RETURNED_BY_CUSTOMER = 3;
+  RESERVED_FOR_SALE = 4;
+  SOLD_ONLINE = 5;
+  ORDERED_FROM_VENDOR = 6;
+  RECEIVED_FROM_VENDOR = 7;
+  IN_TRANSIT_TO = 8;
+  WASTE = 9;
+  UNLINKED_RETURN = 10;
+}

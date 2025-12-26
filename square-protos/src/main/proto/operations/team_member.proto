@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package com.square.operations;
+
+// Represents a team member (employee)
+message TeamMember {
+  // Unique identifier for the team member
+  string id = 1;
+
+  // Reference ID for third-party integration
+  string reference_id = 2;
+
+  // Whether this team member is the owner
+  bool is_owner = 3;
+
+  // Team member status
+  TeamMemberStatus status = 4;
+
+  // Given (first) name
+  string given_name = 5;
+
+  // Family (last) name
+  string family_name = 6;
+
+  // Email address
+  string email_address = 7;
+
+  // Phone number
+  string phone_number = 8;
+
+  // Timestamp when the team member was created, in RFC 3339 format
+  string created_at = 9;
+
+  // Timestamp when the team member was last updated, in RFC 3339 format
+  string updated_at = 10;
+
+  // Location IDs where this team member can work
+  repeated string assigned_locations = 11;
+}
+
+enum TeamMemberStatus {
+  TEAM_MEMBER_STATUS_UNSPECIFIED = 0;
+  TEAM_MEMBER_STATUS_ACTIVE = 1;
+  TEAM_MEMBER_STATUS_INACTIVE = 2;
+}

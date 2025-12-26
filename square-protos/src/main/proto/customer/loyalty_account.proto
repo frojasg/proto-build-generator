@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package com.square.customer;
+
+import "customer/customer.proto";
+
+// Represents a customer's loyalty account
+message LoyaltyAccount {
+  // Unique identifier for the loyalty account
+  string id = 1;
+
+  // Customer ID associated with the account
+  string customer_id = 2;
+
+  // Loyalty program ID
+  string program_id = 3;
+
+  // Current point balance
+  int32 balance = 4;
+
+  // Lifetime points accumulated
+  int32 lifetime_points = 5;
+
+  // Timestamp when the account was created, in RFC 3339 format
+  string created_at = 6;
+
+  // Timestamp when the account was last updated, in RFC 3339 format
+  string updated_at = 7;
+}

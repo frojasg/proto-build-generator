@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package com.square.common;
+
+// Represents an error that occurred during API processing
+message Error {
+  // High-level error category
+  ErrorCategory category = 1;
+
+  // Specific error code
+  string code = 2;
+
+  // Human-readable error message
+  string detail = 3;
+
+  // Name of the request field that caused the error, if applicable
+  string field = 4;
+}
+
+enum ErrorCategory {
+  ERROR_CATEGORY_UNSPECIFIED = 0;
+  API_ERROR = 1;              // Internal API error
+  AUTHENTICATION_ERROR = 2;    // Authentication failure
+  INVALID_REQUEST_ERROR = 3;   // Invalid request parameters
+  RATE_LIMIT_ERROR = 4;        // Rate limit exceeded
+  PAYMENT_METHOD_ERROR = 5;    // Payment method error
+  REFUND_ERROR = 6;            // Refund processing error
+}

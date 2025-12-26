@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package com.square.catalog;
+
+import "catalog/catalog_item.proto";
+import "common/money.proto";
+
+// Represents a variation of a catalog item
+message CatalogItemVariation {
+  // Unique identifier for the variation
+  string id = 1;
+
+  // Item ID this variation belongs to
+  string item_id = 2;
+
+  // Variation name (e.g., "Small", "Large", "Red")
+  string name = 3;
+
+  // SKU for the variation
+  string sku = 4;
+
+  // UPC code
+  string upc = 5;
+
+  // Ordinal value for sorting
+  int32 ordinal = 6;
+
+  // Pricing type
+  PricingType pricing_type = 7;
+
+  // Price, if pricing type is FIXED
+  com.square.common.Money price_money = 8;
+
+  // Whether the variation can be sold
+  bool available_for_booking = 9;
+
+  // Item option values (e.g., size: "Large", color: "Blue")
+  repeated ItemOptionValue item_option_values = 10;
+
+  // Whether to track inventory for this variation
+  bool track_inventory = 11;
+}
+
+enum PricingType {
+  PRICING_TYPE_UNSPECIFIED = 0;
+  FIXED_PRICING = 1;
+  VARIABLE_PRICING = 2;
+}
+
+message ItemOptionValue {
+  // Item option ID
+  string item_option_id = 1;
+
+  // Item option value ID
+  string item_option_value_id = 2;
+}

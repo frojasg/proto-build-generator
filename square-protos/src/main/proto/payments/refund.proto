@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package com.square.payments;
+
+import "common/money.proto";
+import "payments/payment.proto";
+
+// Represents a refund of a payment
+message Refund {
+  // Unique identifier for the refund
+  string id = 1;
+
+  // Location ID where the refund was processed
+  string location_id = 2;
+
+  // Payment ID being refunded
+  string payment_id = 3;
+
+  // Amount of money refunded
+  com.square.common.Money amount_money = 4;
+
+  // Refund status
+  RefundStatus status = 5;
+
+  // Reason for the refund
+  string reason = 6;
+
+  // Timestamp when the refund was created, in RFC 3339 format
+  string created_at = 7;
+
+  // Timestamp when the refund was last updated, in RFC 3339 format
+  string updated_at = 8;
+
+  // Timestamp when the refund was processed, in RFC 3339 format
+  string processed_at = 9;
+}
+
+enum RefundStatus {
+  REFUND_STATUS_UNSPECIFIED = 0;
+  REFUND_STATUS_PENDING = 1;
+  REFUND_STATUS_APPROVED = 2;
+  REFUND_STATUS_REJECTED = 3;
+  REFUND_STATUS_FAILED = 4;
+}
