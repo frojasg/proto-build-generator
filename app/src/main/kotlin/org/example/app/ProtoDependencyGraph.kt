@@ -21,27 +21,29 @@ data class ProtoNode(
  */
 class ProtoDependencyGraph(schema: Schema) {
 
-    private val nodes: Map<String, ProtoNode>
-    private val dependencies: Map<String, List<String>>
+    // Create nodes (excluding Wire's built-in protos) of the proto file name as key and the ProtoNode
+    private val nodes: Map<String, ProtoNode> = schema.protoFiles
+        .filter { !it.location.path.startsWith("google/") && !it.location.path.startsWith("wire/") }
+        .associate { protoFile ->
+            protoFile.location.path to ProtoNode(
+                path = protoFile.location.path,
+                packageName = protoFile.packageName,
+                imports = protoFile.imports,
+                protoFile = protoFile
+            )
+        }
+
+    // Build dependencies map (proto -> protos it imports)
+    private val dependencies: Map<String, List<String>> = nodes.mapValues { (_, node) ->
+        // filtering filter files we don't know about ... for some reason.
+        // TODO: figure out better error handing unknown imports.
+        node.imports.filter { import -> nodes.containsKey(import) }
+    }
+
+
     private val dependents: Map<String, List<String>>
 
     init {
-        // Create nodes (excluding Wire's built-in protos)
-        nodes = schema.protoFiles
-            .filter { !it.location.path.startsWith("google/") && !it.location.path.startsWith("wire/") }
-            .associate { protoFile ->
-                protoFile.location.path to ProtoNode(
-                    path = protoFile.location.path,
-                    packageName = protoFile.packageName,
-                    imports = protoFile.imports,
-                    protoFile = protoFile
-                )
-            }
-
-        // Build dependencies map (proto -> protos it imports)
-        dependencies = nodes.mapValues { (_, node) ->
-            node.imports.filter { import -> nodes.containsKey(import) }
-        }
 
         // Build reverse dependencies map (proto -> protos that import it)
         val mutableDependents = mutableMapOf<String, MutableList<String>>()
