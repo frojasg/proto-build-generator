@@ -156,6 +156,65 @@ class ModuleEvaluator(
             }
         }
 
+        // Post-condition 5: All proto imports are satisfied
+        val protoToModule: Map<String, String> = result.modules
+            .flatMap { module -> module.protoFiles.map { it.path to module.name } }
+            .toMap()
+
+        val importViolations = mutableListOf<ImportViolation>()
+
+        result.modules.forEach { module ->
+            // Build set of allowed proto paths for this module
+            val allowedProtos = mutableSetOf<String>()
+
+            // 1. Add all protos in the same module (intra-module imports)
+            allowedProtos.addAll(module.protoFiles.map { it.path })
+
+            // 2. Add all protos from dependent modules
+            module.dependencies.forEach { depModuleName ->
+                result.modules.find { it.name == depModuleName }?.let { depModule ->
+                    allowedProtos.addAll(depModule.protoFiles.map { it.path })
+                }
+            }
+
+            // Check each proto file's imports
+            module.protoFiles.forEach { protoNode ->
+                protoNode.imports.forEach { importPath ->
+                    if (importPath !in allowedProtos) {
+                        val reason = when {
+                            !protoToModule.containsKey(importPath) ->
+                                "import not found in any module"
+                            else -> {
+                                val importModuleName = protoToModule[importPath]!!
+                                "in module '$importModuleName' which is not a declared dependency"
+                            }
+                        }
+
+                        importViolations.add(
+                            ImportViolation(
+                                moduleName = module.name,
+                                protoPath = protoNode.path,
+                                importPath = importPath,
+                                reason = reason
+                            )
+                        )
+                    }
+                }
+            }
+        }
+
+        if (importViolations.isNotEmpty()) {
+            val violationsByModule = importViolations.groupBy { it.moduleName }
+
+            violationsByModule.forEach { (moduleName, violations) ->
+                val summary = "Module '$moduleName' has ${violations.size} unsatisfied import(s)"
+                val details = violations.joinToString("\n") { v ->
+                    "    ${v.protoPath} imports ${v.importPath} (${v.reason})"
+                }
+                errors.add("$summary:\n$details")
+            }
+        }
+
         // Warnings: Check for potential issues
         val emptyModules = result.modules.filter { it.protoFiles.isEmpty() }
         if (emptyModules.isNotEmpty()) {
@@ -423,6 +482,17 @@ class ModuleEvaluator(
     private fun calculateMaxParallelizability(result: ModuleGroupingResult, levels: List<Set<String>>): Int {
         return levels.maxOfOrNull { it.size } ?: 0
     }
+
+    /**
+     * Represents an import violation where a proto file imports another proto
+     * that is not available (either not in same module or not in declared dependencies)
+     */
+    private data class ImportViolation(
+        val moduleName: String,
+        val protoPath: String,
+        val importPath: String,
+        val reason: String
+    )
 
     private fun calculateQualityScore(
         gini: Double,

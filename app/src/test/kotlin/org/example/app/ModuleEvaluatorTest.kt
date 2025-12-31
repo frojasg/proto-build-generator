@@ -176,6 +176,129 @@ class ModuleEvaluatorTest {
     }
 
     @Test
+    fun `validation should detect unsatisfied imports in different modules`() {
+        val nodes = graph.getAllNodes()
+        // Find a node that has imports
+        val importingNode = nodes.find { it.imports.isNotEmpty() } ?: return
+        val importedPath = importingNode.imports.first()
+        val importedNode = graph.getNode(importedPath) ?: return
+
+        // Put them in different modules without declaring dependency
+        val module1 = ProtoModule(
+            name = "module1",
+            protoFiles = listOf(importingNode),
+            dependencies = emptySet() // Missing dependency!
+        )
+        val module2 = ProtoModule(
+            name = "module2",
+            protoFiles = listOf(importedNode)
+        )
+        val stats = ModuleGroupingStats(2, 2, 0, 0, 0.0, 0, 0, 0, 0.0)
+        val result = ModuleGroupingResult(listOf(module1, module2), "test", stats)
+
+        val validation = evaluator.validate(result)
+
+        assertFalse(validation.isValid, "Validation should fail")
+        assertTrue(validation.errors.any { it.contains("unsatisfied import") })
+        assertTrue(validation.errors.any { it.contains(importedPath) })
+    }
+
+    @Test
+    fun `validation should pass when imports are in declared dependencies`() {
+        // Use the package-based grouping which properly calculates dependencies
+        val grouping = PackageBasedGrouping(StandardModuleNaming())
+        val result = grouping.group(graph)
+
+        // Find two modules where one depends on the other
+        val modulePair = result.modules.find { it.dependencies.isNotEmpty() }
+
+        if (modulePair == null) {
+            // If no module has dependencies, this test doesn't apply
+            return
+        }
+
+        // Verify that the validation passes for a properly configured dependency
+        val validation = evaluator.validate(result)
+
+        // This should pass because PackageBasedGrouping correctly calculates dependencies
+        assertTrue(validation.isValid, "Package-based grouping should have satisfied imports: ${validation.errors}")
+
+        // Now test the opposite: remove a dependency and verify it fails
+        val moduleWithDep = modulePair
+        val modifiedModule = moduleWithDep.copy(dependencies = emptySet())
+        val modifiedModules = result.modules.map {
+            if (it.name == moduleWithDep.name) modifiedModule else it
+        }
+        val modifiedStats = result.stats
+        val modifiedResult = ModuleGroupingResult(modifiedModules, "test", modifiedStats)
+
+        val modifiedValidation = evaluator.validate(modifiedResult)
+
+        // This should potentially fail if the module had imports that required the dependency
+        // Check if there are import violations for the modified module
+        if (moduleWithDep.protoFiles.any { protoNode ->
+            protoNode.imports.any { importPath ->
+                graph.getNode(importPath)?.let { importedNode ->
+                    // Check if imported node is in a different module
+                    modifiedModules.find { m -> m.protoFiles.contains(importedNode) }?.name != modifiedModule.name
+                } ?: false
+            }
+        }) {
+            // If the module has cross-module imports, validation should fail
+            assertFalse(modifiedValidation.isValid, "Validation should fail when dependencies are removed")
+            assertTrue(modifiedValidation.errors.any { it.contains("unsatisfied import") })
+        }
+    }
+
+    @Test
+    fun `validation should pass when imports are in same module`() {
+        val nodes = graph.getAllNodes()
+        // Find a node that has imports to another node we can include
+        val importingNode = nodes.find {
+            it.imports.isNotEmpty() && graph.getNode(it.imports.first()) != null
+        } ?: return
+        val importedPath = importingNode.imports.first()
+        val importedNode = graph.getNode(importedPath)!!
+
+        // Put ALL nodes in the same module to avoid import issues
+        val module = ProtoModule(
+            name = "module1",
+            protoFiles = nodes,
+            dependencies = emptySet()
+        )
+        val stats = ModuleGroupingStats(1, nodes.size, 0, 0, 0.0, 0, 0, 0, 0.0)
+        val result = ModuleGroupingResult(listOf(module), "test", stats)
+
+        val validation = evaluator.validate(result)
+
+        // With all nodes in same module, all intra-graph imports should be satisfied
+        assertTrue(validation.isValid, "Validation should pass when all nodes are in same module: ${validation.errors}")
+        assertTrue(validation.errors.isEmpty())
+    }
+
+    @Test
+    fun `validation should report import not found in any module`() {
+        val nodes = graph.getAllNodes()
+        // Find a node with imports
+        val nodeWithImports = nodes.find { it.imports.isNotEmpty() } ?: return
+
+        // Create module with only this node, but not the nodes it imports
+        val module = ProtoModule(
+            name = "module1",
+            protoFiles = listOf(nodeWithImports),
+            dependencies = emptySet()
+        )
+        val stats = ModuleGroupingStats(1, 1, 0, 0, 0.0, 0, 0, 0, 0.0)
+        val result = ModuleGroupingResult(listOf(module), "test", stats)
+
+        val validation = evaluator.validate(result)
+
+        // Should fail because imports are not in any module
+        assertFalse(validation.isValid, "Validation should fail")
+        assertTrue(validation.errors.any { it.contains("unsatisfied import") })
+    }
+
+    @Test
     fun `evaluation should calculate correct granularity metrics`() {
         val grouping = PackageBasedGrouping(StandardModuleNaming())
         val result = grouping.group(graph)
