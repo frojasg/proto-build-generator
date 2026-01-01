@@ -237,6 +237,28 @@ class ModuleEvaluator(
     }
 
     /**
+     * Calculates basic statistics for the module grouping
+     */
+    fun calculateStats(result: ModuleGroupingResult): ModuleGroupingStats {
+        val protoCounts = result.modules.map { it.protoCount }
+        val graphStats = graph.getStatistics()
+
+        return ModuleGroupingStats(
+            totalModules = result.modules.size,
+            totalProtos = graphStats.totalProtos,
+            totalMessages = graphStats.totalMessages,
+            totalEnums = graphStats.totalEnums,
+            averageProtosPerModule = if (result.modules.isNotEmpty())
+                graphStats.totalProtos.toDouble() / result.modules.size else 0.0,
+            smallestModule = protoCounts.minOrNull() ?: 0,
+            largestModule = protoCounts.maxOrNull() ?: 0,
+            totalModuleDependencies = result.modules.sumOf { it.dependencies.size },
+            averageDependenciesPerModule = if (result.modules.isNotEmpty())
+                result.modules.sumOf { it.dependencies.size }.toDouble() / result.modules.size else 0.0
+        )
+    }
+
+    /**
      * Calculates comprehensive quality metrics for the module grouping
      */
     fun evaluate(result: ModuleGroupingResult): ModuleQualityMetrics {

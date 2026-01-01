@@ -96,18 +96,7 @@ fun main() {
         name = "monolith",
         protoFiles = allNodes
     )
-    val monolithStats = ModuleGroupingStats(
-        totalModules = 1,
-        totalProtos = allNodes.size,
-        totalMessages = stats.totalMessages,
-        totalEnums = stats.totalEnums,
-        averageProtosPerModule = allNodes.size.toDouble(),
-        smallestModule = allNodes.size,
-        largestModule = allNodes.size,
-        totalModuleDependencies = 0,
-        averageDependenciesPerModule = 0.0
-    )
-    val monolithResult = ModuleGroupingResult(listOf(monolithModule), "monolith", monolithStats)
+    val monolithResult = ModuleGroupingResult(listOf(monolithModule), "monolith")
 
     println("\nValidating monolith grouping...")
     val validation3 = evaluator.validate(monolithResult)
@@ -151,18 +140,7 @@ fun main() {
             dependencies = deps
         )
     }
-    val maxGranularityStats = ModuleGroupingStats(
-        totalModules = allNodes.size,
-        totalProtos = allNodes.size,
-        totalMessages = stats.totalMessages,
-        totalEnums = stats.totalEnums,
-        averageProtosPerModule = 1.0,
-        smallestModule = 1,
-        largestModule = 1,
-        totalModuleDependencies = maxGranularityModules.sumOf { it.dependencies.size },
-        averageDependenciesPerModule = maxGranularityModules.sumOf { it.dependencies.size }.toDouble() / allNodes.size
-    )
-    val maxGranularityResult = ModuleGroupingResult(maxGranularityModules, "max-granularity", maxGranularityStats)
+    val maxGranularityResult = ModuleGroupingResult(maxGranularityModules, "max-granularity")
 
     println("\nValidating maximum granularity grouping...")
     val validation4 = evaluator.validate(maxGranularityResult)

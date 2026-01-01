@@ -92,7 +92,6 @@ class ModuleGroupingTest {
             val result = ModuleGroupingResult(
                 modules = listOf(moduleA, moduleB, moduleC),
                 strategy = "test",
-                stats = ModuleGroupingStats(3, 0, 0, 0, 0.0, 0, 0, 3, 1.0)
             )
 
             assertTrue(result.hasCircularDependencies(), "Should detect circular dependency")
@@ -109,7 +108,6 @@ class ModuleGroupingTest {
             val result = ModuleGroupingResult(
                 modules = listOf(moduleA, moduleB, moduleC),
                 strategy = "test",
-                stats = ModuleGroupingStats(3, 0, 0, 0, 0.0, 0, 0, 2, 0.67)
             )
 
             assertFalse(result.hasCircularDependencies(), "Should not detect circular dependency")
@@ -125,7 +123,6 @@ class ModuleGroupingTest {
             val result = ModuleGroupingResult(
                 modules = listOf(moduleA, moduleB, moduleC),
                 strategy = "test",
-                stats = ModuleGroupingStats(3, 0, 0, 0, 0.0, 0, 0, 1, 0.33)
             )
 
             val roots = result.findRootModules()
@@ -144,7 +141,6 @@ class ModuleGroupingTest {
             val result = ModuleGroupingResult(
                 modules = listOf(moduleA, moduleB, moduleC),
                 strategy = "test",
-                stats = ModuleGroupingStats(3, 0, 0, 0, 0.0, 0, 0, 2, 0.67)
             )
 
             val leaves = result.findLeafModules()
@@ -160,7 +156,6 @@ class ModuleGroupingTest {
             val result = ModuleGroupingResult(
                 modules = listOf(moduleA),
                 strategy = "test",
-                stats = ModuleGroupingStats(1, 0, 0, 0, 0.0, 0, 0, 0, 0.0)
             )
 
             assertNotNull(result.getModule("module-a"))
@@ -389,7 +384,8 @@ class ModuleGroupingTest {
             val strategy = PackageBasedGrouping()
             val result = strategy.group(graph)
 
-            val stats = result.stats
+            val evaluator = ModuleEvaluator(graph)
+            val stats = evaluator.calculateStats(result)
 
             assertEquals(7, stats.totalModules)
             assertEquals(23, stats.totalProtos)

@@ -55,8 +55,7 @@ class ModuleEvaluatorTest {
             name = "incomplete",
             protoFiles = nodes.take(nodes.size - 5) // Omit last 5 protos
         )
-        val stats = ModuleGroupingStats(1, nodes.size - 5, 0, 0, 0.0, 0, 0, 0, 0.0)
-        val result = ModuleGroupingResult(listOf(incompleteModule), "test", stats)
+        val result = ModuleGroupingResult(listOf(incompleteModule), "test")
 
         val validation = evaluator.validate(result)
 
@@ -77,8 +76,7 @@ class ModuleEvaluatorTest {
             name = "module2",
             protoFiles = nodes // Contains first node again
         )
-        val stats = ModuleGroupingStats(2, nodes.size + 1, 0, 0, 0.0, 0, 0, 0, 0.0)
-        val result = ModuleGroupingResult(listOf(module1, module2), "test", stats)
+        val result = ModuleGroupingResult(listOf(module1, module2), "test")
 
         val validation = evaluator.validate(result)
 
@@ -103,8 +101,7 @@ class ModuleEvaluatorTest {
             protoFiles = listOf(node2),
             dependencies = setOf("module1")
         )
-        val stats = ModuleGroupingStats(2, 2, 0, 0, 0.0, 0, 0, 2, 0.0)
-        val result = ModuleGroupingResult(listOf(module1, module2), "test", stats)
+        val result = ModuleGroupingResult(listOf(module1, module2), "test")
 
         val validation = evaluator.validate(result)
 
@@ -122,8 +119,7 @@ class ModuleEvaluatorTest {
             protoFiles = listOf(node),
             dependencies = setOf("nonexistent-module")
         )
-        val stats = ModuleGroupingStats(1, 1, 0, 0, 0.0, 0, 0, 1, 0.0)
-        val result = ModuleGroupingResult(listOf(module), "test", stats)
+        val result = ModuleGroupingResult(listOf(module), "test")
 
         val validation = evaluator.validate(result)
 
@@ -143,8 +139,7 @@ class ModuleEvaluatorTest {
             name = "empty-module",
             protoFiles = emptyList()
         )
-        val stats = ModuleGroupingStats(2, nodes.size, 0, 0, 0.0, 0, 0, 0, 0.0)
-        val result = ModuleGroupingResult(listOf(module1, module2), "test", stats)
+        val result = ModuleGroupingResult(listOf(module1, module2), "test")
 
         val validation = evaluator.validate(result)
 
@@ -166,8 +161,7 @@ class ModuleEvaluatorTest {
             protoFiles = nodes.drop(10),
             dependencies = emptySet()
         )
-        val stats = ModuleGroupingStats(2, nodes.size, 0, 0, 0.0, 0, 0, 0, 0.0)
-        val result = ModuleGroupingResult(listOf(module1, module2), "test", stats)
+        val result = ModuleGroupingResult(listOf(module1, module2), "test")
 
         val validation = evaluator.validate(result)
 
@@ -193,8 +187,7 @@ class ModuleEvaluatorTest {
             name = "module2",
             protoFiles = listOf(importedNode)
         )
-        val stats = ModuleGroupingStats(2, 2, 0, 0, 0.0, 0, 0, 0, 0.0)
-        val result = ModuleGroupingResult(listOf(module1, module2), "test", stats)
+        val result = ModuleGroupingResult(listOf(module1, module2), "test")
 
         val validation = evaluator.validate(result)
 
@@ -229,8 +222,7 @@ class ModuleEvaluatorTest {
         val modifiedModules = result.modules.map {
             if (it.name == moduleWithDep.name) modifiedModule else it
         }
-        val modifiedStats = result.stats
-        val modifiedResult = ModuleGroupingResult(modifiedModules, "test", modifiedStats)
+        val modifiedResult = ModuleGroupingResult(modifiedModules, "test")
 
         val modifiedValidation = evaluator.validate(modifiedResult)
 
@@ -266,8 +258,7 @@ class ModuleEvaluatorTest {
             protoFiles = nodes,
             dependencies = emptySet()
         )
-        val stats = ModuleGroupingStats(1, nodes.size, 0, 0, 0.0, 0, 0, 0, 0.0)
-        val result = ModuleGroupingResult(listOf(module), "test", stats)
+        val result = ModuleGroupingResult(listOf(module), "test")
 
         val validation = evaluator.validate(result)
 
@@ -288,8 +279,7 @@ class ModuleEvaluatorTest {
             protoFiles = listOf(nodeWithImports),
             dependencies = emptySet()
         )
-        val stats = ModuleGroupingStats(1, 1, 0, 0, 0.0, 0, 0, 0, 0.0)
-        val result = ModuleGroupingResult(listOf(module), "test", stats)
+        val result = ModuleGroupingResult(listOf(module), "test")
 
         val validation = evaluator.validate(result)
 
@@ -378,16 +368,14 @@ class ModuleEvaluatorTest {
                 protoFiles = chunk
             )
         }
-        val balancedStats = ModuleGroupingStats(balancedModules.size, nodes.size, 0, 0, moduleSize.toDouble(), moduleSize, moduleSize, 0, 0.0)
-        val balancedResult = ModuleGroupingResult(balancedModules, "balanced", balancedStats)
+        val balancedResult = ModuleGroupingResult(balancedModules, "balanced")
 
         // Create unbalanced modules (varying sizes)
         val unbalancedModules = listOf(
             ProtoModule(name = "tiny", protoFiles = nodes.take(1)),
             ProtoModule(name = "large", protoFiles = nodes.drop(1))
         )
-        val unbalancedStats = ModuleGroupingStats(2, nodes.size, 0, 0, 0.0, 1, nodes.size - 1, 0, 0.0)
-        val unbalancedResult = ModuleGroupingResult(unbalancedModules, "unbalanced", unbalancedStats)
+        val unbalancedResult = ModuleGroupingResult(unbalancedModules, "unbalanced")
 
         val balancedMetrics = evaluator.evaluate(balancedResult)
         val unbalancedMetrics = evaluator.evaluate(unbalancedResult)
@@ -439,8 +427,7 @@ class ModuleEvaluatorTest {
             name = "monolith",
             protoFiles = nodes
         )
-        val stats = ModuleGroupingStats(1, nodes.size, 0, 0, nodes.size.toDouble(), nodes.size, nodes.size, 0, 0.0)
-        val result = ModuleGroupingResult(listOf(singleModule), "monolith", stats)
+        val result = ModuleGroupingResult(listOf(singleModule), "monolith")
 
         val validation = evaluator.validate(result)
         val metrics = evaluator.evaluate(result)
@@ -466,8 +453,7 @@ class ModuleEvaluatorTest {
                     .toSet()
             )
         }
-        val stats = ModuleGroupingStats(nodes.size, nodes.size, 0, 0, 1.0, 1, 1, 0, 0.0)
-        val result = ModuleGroupingResult(maxGranularityModules, "max-granularity", stats)
+        val result = ModuleGroupingResult(maxGranularityModules, "max-granularity")
 
         val validation = evaluator.validate(result)
         val metrics = evaluator.evaluate(result)

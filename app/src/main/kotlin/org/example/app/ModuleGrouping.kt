@@ -29,8 +29,7 @@ data class ProtoModule(
  */
 data class ModuleGroupingResult(
     val modules: List<ProtoModule>,
-    val strategy: String,
-    val stats: ModuleGroupingStats
+    val strategy: String
 ) {
     /**
      * Get a module by name
@@ -132,13 +131,9 @@ class PackageBasedGrouping(
             )
         }.sortedBy { it.name }
 
-        // Calculate statistics
-        val stats = calculateStats(modules, graph)
-
         return ModuleGroupingResult(
             modules = modules,
-            strategy = name,
-            stats = stats
+            strategy = name
         )
     }
 
@@ -172,24 +167,5 @@ class PackageBasedGrouping(
         }
 
         return moduleDeps
-    }
-
-    private fun calculateStats(modules: List<ProtoModule>, graph: ProtoDependencyGraph): ModuleGroupingStats {
-        val protoCounts = modules.map { it.protoCount }
-        val graphStats = graph.getStatistics()
-
-        return ModuleGroupingStats(
-            totalModules = modules.size,
-            totalProtos = graphStats.totalProtos,
-            totalMessages = graphStats.totalMessages,
-            totalEnums = graphStats.totalEnums,
-            averageProtosPerModule = if (modules.isNotEmpty())
-                graphStats.totalProtos.toDouble() / modules.size else 0.0,
-            smallestModule = protoCounts.minOrNull() ?: 0,
-            largestModule = protoCounts.maxOrNull() ?: 0,
-            totalModuleDependencies = modules.sumOf { it.dependencies.size },
-            averageDependenciesPerModule = if (modules.isNotEmpty())
-                modules.sumOf { it.dependencies.size }.toDouble() / modules.size else 0.0
-        )
     }
 }
